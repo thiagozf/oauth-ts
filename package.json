@@ -30,7 +30,7 @@
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "clean": "trash build test",
-    "all": "run-s reset test cov:check doc:html",
+    "all": "run-s test cov:check doc:html",
     "prepare-release": "run-s all version doc:publish",
     "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('oauth.js must be installed with Yarn: https://yarnpkg.com/')\""
   },
@@ -49,7 +49,12 @@
   "engines": {
     "node": ">=8.9"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/crypto-js": "^3.1.43",
+    "@types/js-cookie": "^2.2.2",
+    "crypto-js": "^3.1.9-1",
+    "js-cookie": "^2.2.0"
+  },
   "devDependencies": {
     "@types/qs": "^6.5.1",
     "@types/superagent": "^3.8.6",

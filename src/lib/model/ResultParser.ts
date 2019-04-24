@@ -1,20 +1,20 @@
 import * as t from 'io-ts';
-import { ErrorResponse, ErrorResponseValidator } from '../error/ErrorResponse';
-import { Failure, Result, Success } from '../result';
 import { validate } from '../utils/Validator';
+import { ErrorResponse, ErrorResponseValidator } from './Error';
+import { Failure, Result, Success } from './Result';
 
-export function parseResponse<S>(
+export const resultOf = <S>(
   response: any,
   validator: t.Type<S>
-): Result<S, ErrorResponse> {
+): Result<S, ErrorResponse> => {
   try {
-    const value: S = validate(validator, response.body);
+    const value: S = validate(validator, response);
     return Success(value);
   } catch (err) {
     const errorResponse: ErrorResponse = validate(
       ErrorResponseValidator,
-      err.request.body
+      response
     );
     return Failure(errorResponse);
   }
-}
+};

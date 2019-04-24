@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 
-export function validate<T, O, I>(validator: t.Type<T, O, I>, input: I): T {
+export const validate = <T, O, I>(validator: t.Type<T, O, I>, input: I): T => {
   const result = validator.decode(input);
   return result.fold(
     () => {
@@ -10,4 +10,4 @@ export function validate<T, O, I>(validator: t.Type<T, O, I>, input: I): T {
     },
     value => value
   );
-}
+};

@@ -1,4 +1,14 @@
 import * as t from 'io-ts';
+import { stringify } from 'qs';
+
+export const AuthorizationCodeResponseValidator = t.type({
+  code: t.string,
+  state: t.string
+});
+
+export type AuthorizationCodeResponse = t.TypeOf<
+  typeof AuthorizationCodeResponseValidator
+>;
 
 export const AuthorizationParamsValidator = t.intersection([
   t.type({
@@ -16,3 +26,11 @@ export const AuthorizationParamsValidator = t.intersection([
 ]);
 
 export type AuthorizationParams = t.TypeOf<typeof AuthorizationParamsValidator>;
+
+export const authorize = (
+  domain: string,
+  params: AuthorizationParams
+): string => {
+  const query = stringify(params);
+  return `${domain}/authorize?${query}`;
+};
