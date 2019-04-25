@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 
 const KEY_LENGTH: number = 32;
 const NAMESPACE: string = 'com.github.thiagozf.oauth.';
+const TRANSACTION_EXPIRATION_TIME_DAYS: number = 1 / 48; // 30 minutes
 
 const storageKeyFor = (state: string): string => {
   return NAMESPACE + state;
@@ -22,7 +23,9 @@ export const startTransaction = <D>(data: D): Transaction<D> => {
   };
 
   // tslint:disable-next-line:no-expression-statement
-  Cookies.set(storageKeyFor(transaction.state), transaction);
+  Cookies.set(storageKeyFor(transaction.state), transaction, {
+    expires: TRANSACTION_EXPIRATION_TIME_DAYS
+  });
 
   return transaction;
 };

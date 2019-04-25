@@ -10,3 +10,7 @@ export const navigate = (uri: string): void => {
 export const getHashFragment = (): string => {
   return getWindow().location.hash;
 };
+
+export const getQueryParams = (): URLSearchParams => {
+  return new URLSearchParams(getWindow().location.search);
+};

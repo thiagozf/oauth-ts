@@ -1,14 +1,14 @@
+import {
+  AccessTokenResponse,
+  AuthorizeResponse,
+  ErrorResponse,
+  failure,
+  INVALID_STATE_ERROR,
+  Result
+} from '../../api';
 import { navigate } from '../../helpers';
 import { executeHiddenIFrameOperation } from '../../helpers/HiddenIFrameOperation';
-import {
-  AuthorizationCodeResponse,
-  authorize
-} from '../../model/Authorization';
-import { ErrorResponse } from '../../model/Error';
-import { OAuthConfig } from '../../model/OAuthConfig';
-import { Failure, Result } from '../../model/Result';
-import { AccessTokenResponse, token } from '../../model/Token';
-import { INVALID_STATE_ERROR } from '../Errors';
+import { OAuth } from '../../OAuth';
 import { CodeChallengePair, generateCodeChallengePair } from '../PKCE';
 import {
   getStoredTransaction,
@@ -17,55 +17,51 @@ import {
 } from '../TransactionManager';
 
 export class CodePKCEGrant {
-  public readonly config: OAuthConfig;
+  public readonly oauth: OAuth;
 
-  constructor(config: OAuthConfig) {
-    this.config = config;
+  constructor(oauth: OAuth) {
+    this.oauth = oauth;
   }
 
-  public readonly bootstrap = (): string => {
+  public readonly getAuthorizeURL = (): string => {
     const pair: CodeChallengePair = generateCodeChallengePair();
     const transaction: Transaction<CodeChallengePair> = startTransaction(pair);
-
-    return authorize(this.config.domain, {
-      client_id: this.config.client_id,
+    return this.oauth.api.authorization.getAuthorizeURL({
       code_challenge: transaction.data.challenge,
       code_challenge_method: 'S256',
-      redirect_uri: this.config.redirect_uri,
       response_type: 'code',
-      scope: this.config.scope,
       state: transaction.state
     });
   };
 
   public readonly authorize = (): void => {
-    return navigate(this.bootstrap());
+    return navigate(this.getAuthorizeURL());
   };
 
   public readonly refresh = async (): Promise<
     Result<AccessTokenResponse, ErrorResponse>
   > => {
-    return executeHiddenIFrameOperation(this.bootstrap()).then(
+    return executeHiddenIFrameOperation(this.getAuthorizeURL()).then(
       this.exchangeCode
     );
   };
 
   public readonly exchangeCode = async (
-    params: AuthorizationCodeResponse
+    params: AuthorizeResponse
   ): Promise<Result<AccessTokenResponse, ErrorResponse>> => {
     const transaction: Transaction<CodeChallengePair> = getStoredTransaction(
       params.state
     );
 
     return !transaction
-      ? Failure(INVALID_STATE_ERROR)
-      : token(this.config.domain, {
-          client_id: this.config.client_id,
+      ? failure(INVALID_STATE_ERROR)
+      : this.oauth.api.authorization.token({
           code: params.code,
-          code_verifier: transaction ? transaction.data.verifier : undefined,
-          grant_type: 'authorization_code',
-          redirect_uri: this.config.redirect_uri,
-          scope: this.config.scope
+          code_verifier:
+            transaction && transaction.data
+              ? transaction.data.verifier
+              : undefined,
+          grant_type: 'authorization_code'
         });
   };
 }

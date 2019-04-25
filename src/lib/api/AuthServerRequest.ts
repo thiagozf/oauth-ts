@@ -1,23 +1,54 @@
 import * as t from 'io-ts';
 import request from 'superagent';
-import { BAD_REQUEST_ERROR } from '../protocol/Errors';
-import { ErrorResponse } from './Error';
-import { Failure, Result } from './Result';
-import { resultOf } from './ResultParser';
+import { resultOf } from '../OAuth';
+import { BAD_REQUEST_ERROR, ErrorResponse } from './Errors';
+import { failure, Result } from './Result';
 
 type HttpRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface HttpRequestOptions<B> {
+  /**
+   * the request's body.
+   */
   readonly body?: object;
+
+  /**
+   * the HTTP method to execute.
+   */
   readonly method?: HttpRequestMethod;
+  /**
+   * the query params.
+   */
   readonly query?: object;
+
+  /**
+   * the number of retries.
+   */
   readonly retries?: number;
+
+  /**
+   * the `Content-Type` header value.
+   */
   readonly type?: string;
+
+  /**
+   * the full URL to call.
+   */
   readonly url: string;
+
+  /**
+   * the response body validator.
+   */
   readonly validator: t.Type<B>;
 }
 
-export const OAuthRequest = async <B>({
+/**
+ * Sends an asynchronous request to a server and returns the response as a [[Result]].
+ *
+ * @method authServerRequest
+ * @returns the result of the request as a promise.
+ */
+export const authServerRequest = async <B>({
   body,
   method = 'GET',
   query,
@@ -36,6 +67,6 @@ export const OAuthRequest = async <B>({
 
     return resultOf(response.body, validator);
   } catch (error) {
-    return Failure(BAD_REQUEST_ERROR);
+    return failure(BAD_REQUEST_ERROR);
   }
 };
