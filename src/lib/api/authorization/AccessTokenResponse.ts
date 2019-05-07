@@ -8,7 +8,9 @@ export const AccessTokenResponseValidator = t.intersection([
     token_type: t.string
   }),
   t.partial({
-    refresh_token: t.string
+    refresh_token: t.string,
+    session_state: t.string,
+    user: t.string
   })
 ]);
 

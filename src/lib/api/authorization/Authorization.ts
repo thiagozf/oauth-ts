@@ -27,11 +27,6 @@ export interface AuthorizeParams {
   readonly code_challenge_method?: string;
 
   /**
-   * tells if the authentication should be done under the hood, in order to fetch a new token for a session that is active.
-   */
-  readonly silent?: boolean;
-
-  /**
    * a parameter to prevent against CSRF attacks. {@link https://auth0.com/docs/protocols/oauth2/oauth-state}
    */
   readonly state?: string;
@@ -61,10 +56,16 @@ export class Authorization {
    * @param {AuthorizeParams} params the request params.
    * @returns the `/authorize` URL
    */
-  public readonly getAuthorizeURL = (params: AuthorizeParams): string => {
+  public readonly getAuthorizeURL = (
+    params: AuthorizeParams,
+    silent: boolean = false
+  ): string => {
     const authorizeRequest: AuthorizeRequest = {
       client_id: this.config.client_id,
-      redirect_uri: this.config.redirect_uri,
+      prompt: silent ? 'none' : 'login',
+      redirect_uri: silent
+        ? this.config.silent_redirect_uri
+        : this.config.redirect_uri,
       scope: this.config.scope,
       ...params
     };
@@ -73,12 +74,15 @@ export class Authorization {
   };
 
   public readonly token = async (
-    params: AccessTokenParams
+    params: AccessTokenParams,
+    silent: boolean = false
   ): Promise<Result<AccessTokenResponse, ErrorResponse>> => {
     const tokenRequest: AccessTokenRequest = {
       client_id: this.config.client_id,
       client_secret: this.config.client_secret,
-      redirect_uri: this.config.redirect_uri,
+      redirect_uri: silent
+        ? this.config.silent_redirect_uri
+        : this.config.redirect_uri,
       scope: this.config.scope,
       ...params
     };

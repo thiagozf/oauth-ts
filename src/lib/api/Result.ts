@@ -28,7 +28,7 @@ export const failure = <F>(body: F): Result<any, F> => {
   return {
     failure: body,
     success: false,
-    value: undefined
+    value: void 0
   };
 };
 
@@ -38,7 +38,7 @@ export const failure = <F>(body: F): Result<any, F> => {
  */
 export const success = <S>(body: S): Result<S, any> => {
   return {
-    failure: undefined,
+    failure: void 0,
     success: true,
     value: body
   };

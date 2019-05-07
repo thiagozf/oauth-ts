@@ -22,7 +22,7 @@ const ParseOptions: IParseOptions = {
       false: false,
       null: null,
       true: true,
-      undefined
+      undefined: void 0
     };
 
     // tslint:disable-next-line:no-if-statement

@@ -13,6 +13,9 @@ export const authorizeReponseFromQueryParams = (
   return resultOf(
     {
       code: query.get('code'),
+      error: query.get('error'),
+      error_description: query.get('error_description'),
+      session_state: query.get('session_state'),
       state: query.get('state')
     },
     AuthorizeResponseValidator

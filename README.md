@@ -7,7 +7,7 @@ OAuth 2.0 authentication library
 ```typescript
 // index.ts
 
-import { OAuth, ImplicitGrant } from 'oauth.js';
+import { OAuth, ImplicitFlow } from 'oauth.js';
 
 const oauth: OAuth = new OAuth({
   domain: 'https://my.oauth.provider.com',
@@ -16,9 +16,9 @@ const oauth: OAuth = new OAuth({
   scope: 'read,write'
 });
 
-const grant: ImplicitGrant = new ImplicitGrant(oauth);
+const authenticationFlow: ImplicitFlow = new ImplicitFlow(oauth);
 
-grant.authorize();
+authenticationFlow.authorize();
 
 // callback.ts
 import { tokenResponseFromFragment } from 'oauth.js';

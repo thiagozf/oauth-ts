@@ -1811,8 +1811,8 @@ formidable@^1.2.0:
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.1.tgz#70fb7ca0290ee6ff961090415f4b3df3d2082659"
 
 fp-ts@^1.0.0, fp-ts@^1.0.1:
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-1.17.1.tgz#8ee8f4aa7107654b837f99f6aef915e655b1ce5e"
+  version "1.17.2"
+  resolved "http://nexus3.betha.com.br/repository/npm-all/fp-ts/-/fp-ts-1.17.2.tgz#d8ab44a535ea53aad0623b289c15fad7e1f00e54"
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -2217,14 +2217,14 @@ invert-kv@^2.0.0:
 
 io-ts-reporters@^0.0.21:
   version "0.0.21"
-  resolved "https://registry.yarnpkg.com/io-ts-reporters/-/io-ts-reporters-0.0.21.tgz#b0be3eec37a3d7da77aeafa257c68bd2afbbc4af"
+  resolved "http://nexus3.betha.com.br/repository/npm-all/io-ts-reporters/-/io-ts-reporters-0.0.21.tgz#b0be3eec37a3d7da77aeafa257c68bd2afbbc4af"
   dependencies:
     fp-ts "^1.0.1"
     io-ts "^1.0.2"
 
 io-ts@^1.0.2, io-ts@^1.8.1:
   version "1.8.5"
-  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-1.8.5.tgz#2e102f7f518abe17b0f7e7ede0db54a4c4ddc188"
+  resolved "http://nexus3.betha.com.br/repository/npm-all/io-ts/-/io-ts-1.8.5.tgz#2e102f7f518abe17b0f7e7ede0db54a4c4ddc188"
   dependencies:
     fp-ts "^1.0.0"
 

@@ -6,6 +6,7 @@ export interface OAuthConfig {
   readonly client_id: string;
   readonly client_secret?: string;
   readonly redirect_uri: string;
+  readonly silent_redirect_uri?: string;
 }
 
 export class OAuth {

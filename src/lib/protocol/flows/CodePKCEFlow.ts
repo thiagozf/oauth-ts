@@ -16,52 +16,57 @@ import {
   Transaction
 } from '../TransactionManager';
 
-export class CodePKCEGrant {
+export class CodePKCEFlow {
   public readonly oauth: OAuth;
 
   constructor(oauth: OAuth) {
     this.oauth = oauth;
   }
 
-  public readonly getAuthorizeURL = (): string => {
+  public readonly getAuthorizeURL = (silent: boolean = false): string => {
     const pair: CodeChallengePair = generateCodeChallengePair();
     const transaction: Transaction<CodeChallengePair> = startTransaction(pair);
-    return this.oauth.api.authorization.getAuthorizeURL({
-      code_challenge: transaction.data.challenge,
-      code_challenge_method: 'S256',
-      response_type: 'code',
-      state: transaction.state
-    });
+    return this.oauth.api.authorization.getAuthorizeURL(
+      {
+        code_challenge: transaction.data.challenge,
+        code_challenge_method: 'S256',
+        response_type: 'code',
+        state: transaction.state
+      },
+      silent
+    );
   };
 
   public readonly authorize = (): void => {
     return navigate(this.getAuthorizeURL());
   };
 
-  public readonly refresh = async (): Promise<
-    Result<AccessTokenResponse, ErrorResponse>
+  public readonly silentAuthorize = async (): Promise<
+    Result<AuthorizeResponse, ErrorResponse>
   > => {
-    return executeHiddenIFrameOperation(this.getAuthorizeURL()).then(
-      this.exchangeCode
-    );
+    return executeHiddenIFrameOperation(this.getAuthorizeURL(true));
   };
 
   public readonly exchangeCode = async (
-    params: AuthorizeResponse
+    authorizeResponse: AuthorizeResponse,
+    silent: boolean = false
   ): Promise<Result<AccessTokenResponse, ErrorResponse>> => {
     const transaction: Transaction<CodeChallengePair> = getStoredTransaction(
-      params.state
+      authorizeResponse.state
     );
 
     return !transaction
       ? failure(INVALID_STATE_ERROR)
-      : this.oauth.api.authorization.token({
-          code: params.code,
-          code_verifier:
-            transaction && transaction.data
-              ? transaction.data.verifier
-              : undefined,
-          grant_type: 'authorization_code'
-        });
+      : this.oauth.api.authorization.token(
+          {
+            code: authorizeResponse.code,
+            code_verifier:
+              transaction && transaction.data
+                ? transaction.data.verifier
+                : void 0,
+            grant_type: 'authorization_code'
+          },
+          silent
+        );
   };
 }
