@@ -4,7 +4,7 @@ jobs:
   'node-10':
     docker:
       - image: circleci/node:10
-    working_directory: ~/oauthjs
+    working_directory: ~/oauth.js
     steps:
       - checkout
       # Download and cache dependencies
@@ -20,12 +20,12 @@ jobs:
             - node_modules
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
-      - run: npx nyc report --reporter=lcov | npx codecov
+      - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn run cov:check
   'node-latest':
     docker:
       - image: circleci/node:latest
-    working_directory: ~/oauthjs
+    working_directory: ~/oauth.js
     steps:
       - checkout
       - restore_cache:
@@ -39,7 +39,7 @@ jobs:
             - node_modules
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
-      - run: npx nyc report --reporter=lcov | npx codecov
+      - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn cov:check
 
 workflows:
