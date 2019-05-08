@@ -4,6 +4,7 @@ jobs:
   'node-10':
     docker:
       - image: circleci/node:10
+    working_directory: ~/oauth.js
     steps:
       - checkout
       # Download and cache dependencies
@@ -24,6 +25,7 @@ jobs:
   'node-latest':
     docker:
       - image: circleci/node:latest
+    working_directory: ~/oauth.js
     steps:
       - checkout
       - restore_cache:
