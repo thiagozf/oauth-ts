@@ -34,6 +34,6 @@ test('authorize returns the endpoint to authenticate a user', async t => {
     params.code_challenge_method
   );
   t.is(url.searchParams.get('response_type'), params.response_type);
-  t.is(url.searchParams.get('prompt'), 'none');
+  t.is(url.searchParams.get('prompt'), 'login');
   t.is(url.searchParams.get('state'), params.state);
 });

@@ -4,41 +4,43 @@ jobs:
   'node-10':
     docker:
       - image: circleci/node:10
-    working_directory: ~/typescript-starter
+    working_directory: ~/oauthjs
     steps:
       - checkout
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - yarn-packages-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - run: npm install
+            - yarn-packages-
+      - run: yarn install --frozen-lockfile
       - save_cache:
           paths:
+            - ~/.cache/yarn
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm test
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn test
       - run: npx nyc report --reporter=lcov | npx codecov
-      - run: npm run cov:check
+      - run: yarn run cov:check
   'node-latest':
     docker:
       - image: circleci/node:latest
-    working_directory: ~/typescript-starter
+    working_directory: ~/oauthjs
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run: npm install
+            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-packages-
+      - run: yarn install --frozen-lockfile
       - save_cache:
           paths:
+            - ~/.cache/yarn
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm test
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn test
       - run: npx nyc report --reporter=lcov | npx codecov
-      - run: npm run cov:check
+      - run: yarn cov:check
 
 workflows:
   version: 2
