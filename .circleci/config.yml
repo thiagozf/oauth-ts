@@ -20,7 +20,7 @@ jobs:
             - node_modules
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
-      - run: npx nyc report --reporter=lcov | npx codecov
+      - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn run cov:check
   'node-latest':
     docker:
@@ -39,7 +39,7 @@ jobs:
             - node_modules
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
-      - run: npx nyc report --reporter=lcov | npx codecov
+      - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn cov:check
 
 workflows:
