@@ -2,7 +2,8 @@
   "extends": ["tslint:latest", "tslint-config-prettier", "tslint-immutable"],
   "rules": {
     "interface-name": [true, "never-prefix"],
-    "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": [true, "~lib"],
+    "no-implicit-dependencies": [true, "dev", ["~lib"]],
     "no-var-keyword": true,
     "no-parameter-reassignment": true,
     "typedef": [true, "call-signature"],
@@ -15,6 +16,7 @@
     "no-this": false,
     "no-class": false,
     "no-mixed-interface": true,
+    "no-console": false,
     "no-expression-statement": [
       true,
       { "ignore-prefix": ["console.", "process.exit", "this."] }

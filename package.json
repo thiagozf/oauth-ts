@@ -11,8 +11,8 @@
   "scripts": {
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:*",
-    "build:main": "tsc -p tsconfig.json",
-    "build:module": "tsc -p tsconfig.module.json",
+    "build:main": "tsc -p tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./build/main",
+    "build:module": "tsc -p tsconfig.module.json && tscpaths -p tsconfig.json -s ./src -o ./build/module",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:tslint": "tslint --fix --project .",
@@ -31,8 +31,7 @@
     "version": "standard-version",
     "clean": "trash build test",
     "all": "run-s test cov:check doc:html",
-    "prepare-release": "run-s all version doc:publish",
-    "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('oauth.js must be installed with Yarn: https://yarnpkg.com/')\""
+    "prepare-release": "run-s all version doc:publish"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
@@ -70,9 +69,10 @@
     "qs": "^6.6.0",
     "sinon": "^7.2.3",
     "standard-version": "^4.4.0",
-    "superagent": "^4.1.0",
+    "superagent": "^3.6.0",
     "superagent-mock": "^3.7.0",
     "trash-cli": "^1.4.0",
+    "tscpaths": "^0.0.9",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-immutable": "^5.0.0",

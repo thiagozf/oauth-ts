@@ -9,20 +9,32 @@ OAuth 2.0 authentication library
 
 ```typescript
 /* index.ts */
-import { OAuth, ImplicitFlow } from 'oauth.js';
 
-// A simple OAuth client config
-const oauth: OAuth = new OAuth({
-  domain: 'https://my.oauth.provider.com',
-  client_id: 'my_client_id',
-  redirect_uri: 'http://localhost:8080/callback',
+import {
+  OpenIDProvider,
+  OAuthConfig,
+  ImplicitFlow,
+  providerConfiguration
+} from 'oauth.js';
+
+// Fetch OpenID provider configuration
+const provider: OpenIDProvider = await providerConfiguration(
+  'https://my.oidc.provider.com'
+);
+
+// Configure a simple OAuth client
+const config: OAuthConfig = new OAuthConfig({
+  provider,
+  clientId: 'my_client_id',
+  redirectUri: 'http://localhost:8080/callback',
+  silentRedirectUri: 'http://localhost:8080/silent-callback',
   scope: 'read write'
 });
 
 // Select an authorization flow - ie: implicit and code
-const flow: ImplicitFlow = new ImplicitFlow(oauth);
+const flow: ImplicitFlow = new ImplicitFlow(config);
 
-// Starts the authorization flow
+// Start the authorization flow
 flow.authorize();
 
 /* callback.ts */
