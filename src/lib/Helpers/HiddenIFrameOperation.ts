@@ -1,7 +1,6 @@
 import { getWindow } from './BrowserUtils';
 import { MessageBoundHiddenIFrame } from './MessageBoundHiddenIFrame';
 
-// tslint:disable:no-expression-statement no-object-mutation
 export const executeHiddenIFrameOperation = async (
   url: string,
   timeout: number = 30 * 1000

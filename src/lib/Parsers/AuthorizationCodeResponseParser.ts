@@ -1,13 +1,13 @@
 import {
   AuthorizeResponse,
   AuthorizeResponseValidator,
-  ErrorResponse,
-  Result
+  ErrorResponse
 } from '~lib/Api';
 import { getQueryParams } from '~lib/Helpers';
+import { Result } from '~lib/Result';
 import { resultOf } from './ServerResponseParser';
 
-export const authorizeReponseFromQueryParams = (
+export const authorizeResponseFromQueryParams = (
   query: URLSearchParams = getQueryParams()
 ): Result<AuthorizeResponse, ErrorResponse> => {
   return resultOf(

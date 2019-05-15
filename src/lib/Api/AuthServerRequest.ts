@@ -1,8 +1,8 @@
 import * as t from 'io-ts';
 import request from 'superagent';
 import { resultOf } from '~lib/Parsers';
+import { failure, Result } from '~lib/Result';
 import { BAD_REQUEST_ERROR, ErrorResponse } from './Errors';
-import { failure, Result } from './Result';
 
 type HttpRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 

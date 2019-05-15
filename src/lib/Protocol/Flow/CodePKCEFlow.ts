@@ -1,15 +1,11 @@
 import {
   AccessTokenResponse,
+  Api,
   AuthorizeResponse,
   BAD_REQUEST_ERROR,
   ErrorResponse,
-  failure,
-  INVALID_STATE_ERROR,
-  OAuthAPI,
-  Result
+  INVALID_STATE_ERROR
 } from '~lib/Api';
-
-import { OAuthConfig } from '~lib/OAuthConfig';
 
 import {
   CodeChallengePair,
@@ -23,23 +19,46 @@ import {
   RedirectAuthenticationHandler
 } from '../Handlers';
 
+import { authorizeResponseFromQueryParams } from '~lib/Parsers';
+import { Persistence } from '~lib/Persistence';
+import { failure, Result } from '~lib/Result';
 import { AuthenticationFlow } from './AuthenticationFlow';
 
 export class CodePKCEFlow implements AuthenticationFlow {
-  public readonly config: OAuthConfig;
-  private readonly api: OAuthAPI;
+  private readonly api: Api;
   private readonly transactionManager: TransactionManager<CodeChallengePair>;
 
-  constructor(config: OAuthConfig) {
-    this.config = config;
-    this.api = new OAuthAPI(config);
+  constructor(api: Api, storage: Persistence) {
+    this.api = api;
     this.transactionManager = new TransactionManager<CodeChallengePair>(
-      new config.storage()
+      storage
     );
   }
 
   public readonly authorize = (): Promise<void> => {
     return RedirectAuthenticationHandler.navigate(this.getAuthorizeURL());
+  };
+
+  public readonly handleAuthorizeResponse = async (): Promise<
+    AccessTokenResponse
+  > => {
+    const authorizeResult: Result<
+      AuthorizeResponse,
+      ErrorResponse
+    > = authorizeResponseFromQueryParams();
+
+    if (authorizeResult.failure) {
+      return Promise.reject(authorizeResult.failure);
+    }
+
+    const tokenResult: Result<
+      AccessTokenResponse,
+      ErrorResponse
+    > = await this.exchangeCode(authorizeResult.value);
+
+    return tokenResult.failure
+      ? Promise.reject(tokenResult.failure)
+      : Promise.resolve(tokenResult.value);
   };
 
   public readonly silentAuthorize = async (): Promise<

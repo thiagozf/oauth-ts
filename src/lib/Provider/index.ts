@@ -1,8 +1,9 @@
-import { ErrorResponse, Result } from '~lib/Api';
+import { ErrorResponse } from '~lib/Api';
 import { authServerRequest } from '~lib/Api/AuthServerRequest';
+import { Result } from '~lib/Result';
 import { OpenIDProvider, OpenIDProviderValidator } from './OpenIDProvider';
 
-export const providerConfiguration = async (
+export const resolveProvider = async (
   configurationEndpoint: string
 ): Promise<OpenIDProvider> => {
   const result: Result<OpenIDProvider, ErrorResponse> = await authServerRequest(

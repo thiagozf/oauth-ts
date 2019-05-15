@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
-import { ErrorResponse, failure, Result, success } from '~lib/Api';
+import { ErrorResponse } from '~lib/Api';
+import { failure, Result, success } from '~lib/Result';
 import { validate } from './Validator';
 
 export const resultOf = <S>(

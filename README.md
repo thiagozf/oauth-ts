@@ -8,38 +8,33 @@ OAuth 2.0 authentication library
 ## How to use
 
 ```typescript
-/* index.ts */
+/* MyOAuthApp.ts */
+import { OpenIDProvider, OAuthApplication, resolveProvider } from 'oauth.js';
 
-import {
-  OpenIDProvider,
-  OAuthConfig,
-  ImplicitFlow,
-  providerConfiguration
-} from 'oauth.js';
-
-// Fetch OpenID provider configuration
-const provider: OpenIDProvider = await providerConfiguration(
+const provider: OpenIDProvider = await resolveProvider(
   'https://my.oidc.provider.com'
 );
 
-// Configure a simple OAuth client
-const config: OAuthConfig = new OAuthConfig({
+export const oauthApp: OAuthApplication = new OAuthApplication({
   provider,
   clientId: 'my_client_id',
-  redirectUri: 'http://localhost:8080/callback',
-  silentRedirectUri: 'http://localhost:8080/silent-callback',
-  scope: 'read write'
+  redirectUri: 'http://localhost:3000/callback',
+  silentRedirectUri: 'http://localhost:3000/silent-callback',
+  scope: 'read write',
+  flow: 'IMPLICIT'
 });
 
-// Select an authorization flow - ie: implicit and code
-const flow: ImplicitFlow = new ImplicitFlow(config);
+/* index.ts */
+import { oauthApp } from './MyOAuthApp';
 
-// Start the authorization flow
-flow.authorize();
+if (!oauthApp.isLoggedIn()) {
+  return oauthApp.login();
+}
+
+console.log(oauthApp.getUser());
 
 /* callback.ts */
-import { tokenResponseFromFragment } from 'oauth.js';
+import { oauthApp } from './MyOAuthApp';
 
-// Parse the URL fragment to get the authorization response
-console.log(tokenResponseFromFragment());
+oauthApp.handleCallback();
 ```

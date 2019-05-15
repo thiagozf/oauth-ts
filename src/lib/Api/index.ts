@@ -1,5 +1,5 @@
 export * from './Errors';
-export * from './Result';
 export * from './Authorization';
 export * from './Introspect';
-export * from './OAuthAPI';
+export * from './Api';
+export * from './UserInfo';

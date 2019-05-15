@@ -2,10 +2,10 @@ import { IParseOptions, parse } from 'qs';
 import {
   AccessTokenResponse,
   AccessTokenResponseValidator,
-  ErrorResponse,
-  Result
+  ErrorResponse
 } from '~lib/Api';
 import { getHashFragment } from '~lib/Helpers';
+import { Result } from '~lib/Result';
 import { resultOf } from './ServerResponseParser';
 
 const ParseOptions: IParseOptions = {
@@ -13,7 +13,6 @@ const ParseOptions: IParseOptions = {
   decoder(str: string): any {
     const strWithoutPlus = str.replace(/\+/g, ' ');
 
-    // tslint:disable-next-line:no-if-statement
     if (/^(\d+|\d*\.\d+)$/.test(str)) {
       return parseFloat(str);
     }
@@ -25,7 +24,6 @@ const ParseOptions: IParseOptions = {
       undefined: void 0
     };
 
-    // tslint:disable-next-line:no-if-statement
     if (str in keywords) {
       return keywords[str];
     }

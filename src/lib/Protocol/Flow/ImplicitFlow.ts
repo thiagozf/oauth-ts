@@ -1,6 +1,4 @@
-import { AccessTokenResponse, ErrorResponse, OAuthAPI, Result } from '~lib/Api';
-
-import { OAuthConfig } from '~lib/OAuthConfig';
+import { AccessTokenResponse, Api, ErrorResponse } from '~lib/Api';
 
 import {
   IFrameAuthenticationHandler,
@@ -9,17 +7,30 @@ import {
 
 import { AuthenticationFlow } from './AuthenticationFlow';
 
-export class ImplicitFlow implements AuthenticationFlow {
-  public readonly config: OAuthConfig;
-  private readonly api: OAuthAPI;
+import { tokenResponseFromFragment } from '~lib/Parsers';
+import { Result } from '~lib/Result';
 
-  constructor(config: OAuthConfig) {
-    this.config = config;
-    this.api = new OAuthAPI(config);
+export class ImplicitFlow implements AuthenticationFlow {
+  private readonly api: Api;
+
+  constructor(api: Api) {
+    this.api = api;
   }
 
   public readonly authorize = (): Promise<void> => {
     return RedirectAuthenticationHandler.navigate(this.getAuthorizeURL());
+  };
+
+  public readonly handleAuthorizeResponse = (): Promise<
+    AccessTokenResponse
+  > => {
+    const result: Result<
+      AccessTokenResponse,
+      ErrorResponse
+    > = tokenResponseFromFragment();
+    return result.success
+      ? Promise.resolve(result.value)
+      : Promise.reject(result.failure);
   };
 
   public readonly silentAuthorize = async (): Promise<

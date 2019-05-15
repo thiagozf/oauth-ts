@@ -1,16 +1,16 @@
-// tslint:disable:no-expression-statement
 import test from 'ava';
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { dummyProvider } from '~lib/Provider/OpenIDProvider.spec';
 import { Authorization, AuthorizeParams } from './Authorization';
 
 test('authorize returns the endpoint to authenticate a user', async t => {
-  const config: OAuthConfig = new OAuthConfig({
+  const config: OAuthConfig = {
     clientId: 'client_id',
+    flow: 'IMPLICIT',
     provider: dummyProvider,
     redirectUri: 'http://my.app/callback',
-    scope: 'read,write'
-  });
+    scope: 'read write'
+  };
 
   const params: AuthorizeParams = {
     code_challenge: 'challenge',

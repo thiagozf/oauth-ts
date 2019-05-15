@@ -1,11 +1,10 @@
-// tslint:disable:no-expression-statement
 import test from 'ava';
 import * as types from 'io-ts';
 import request from 'superagent';
 import mockSuperagent from 'superagent-mock';
+import { Result } from '~lib/Result';
 import { authServerRequest } from './AuthServerRequest';
 import { BAD_REQUEST_ERROR, ErrorResponse } from './Errors';
-import { Result } from './Result';
 
 const mockRequestUrl: string = 'https://oauth.my.test/auth';
 const validResponseValidator = types.type({

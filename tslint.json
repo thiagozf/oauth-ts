@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint:latest", "tslint-config-prettier", "tslint-immutable"],
+  "extends": ["tslint:latest", "tslint-config-prettier"],
   "rules": {
     "interface-name": [true, "never-prefix"],
     "no-submodule-imports": [true, "~lib"],
@@ -7,20 +7,8 @@
     "no-var-keyword": true,
     "no-parameter-reassignment": true,
     "typedef": [true, "call-signature"],
-    "readonly-keyword": true,
-    "readonly-array": true,
-    "no-let": true,
-    "no-object-mutation": true,
-    "no-delete": true,
-    "no-method-signature": true,
     "no-this": false,
     "no-class": false,
-    "no-mixed-interface": true,
-    "no-console": false,
-    "no-expression-statement": [
-      true,
-      { "ignore-prefix": ["console.", "process.exit", "this."] }
-    ],
-    "no-if-statement": true
+    "no-console": false
   }
 }

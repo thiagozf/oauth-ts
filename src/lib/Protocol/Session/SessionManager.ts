@@ -38,7 +38,6 @@ export class SessionManager {
   }
 
   public readonly stop = (): void => {
-    // tslint:disable-next-line:no-expression-statement
     clearInterval(this.timer);
     this.frame.destroy();
   };

@@ -8,12 +8,10 @@ export interface Result<S, F> {
    * `true` if the operation succeeded, `false` otherwise.
    */
   readonly success: boolean;
-
   /**
    * the result of the operation.
    */
   readonly value: S;
-
   /**
    * the failure details.
    */

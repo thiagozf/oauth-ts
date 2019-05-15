@@ -1,6 +1,5 @@
 const MESSAGE_EVENT: string = 'message';
 
-// tslint:disable:no-expression-statement no-object-mutation
 const createHiddenIFrame = (w: Window): HTMLIFrameElement => {
   const element: HTMLIFrameElement = w.document.createElement(
     'iframe'
@@ -64,7 +63,6 @@ export class MessageBoundHiddenIFrame {
   }
 
   public readonly destroy = (): void => {
-    // tslint:disable-next-line:no-expression-statement
     clearTimeout(this.timeout);
     this.window.removeEventListener(MESSAGE_EVENT, this.handleMessage, false);
     this.element.parentNode.removeChild(this.element);

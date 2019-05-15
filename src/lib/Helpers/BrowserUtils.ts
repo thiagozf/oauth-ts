@@ -15,7 +15,6 @@ export const getFullURL = (): string => {
 };
 
 export const navigate = (uri: string): Promise<void> => {
-  // tslint:disable-next-line:no-expression-statement no-object-mutation
   getWindow().location.href = uri;
   return Promise.resolve();
 };

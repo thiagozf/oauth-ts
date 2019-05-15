@@ -1,9 +1,9 @@
-// tslint:disable:no-expression-statement
 import test from 'ava';
 import sinon from 'sinon';
-import { ErrorResponse, Result, success } from '~lib/Api';
+import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { dummyProvider } from '~lib/Provider/OpenIDProvider.spec';
+import { Result, success } from '~lib/Result';
 import * as OAuthRequest from '../AuthServerRequest';
 import { Introspect } from './Introspect';
 import { IntrospectResponse } from './IntrospectResponse';
@@ -19,7 +19,7 @@ test('introspect returns information about an access token', async t => {
       name: 'name'
     },
     expires_in: '0',
-    scopes: 'read,write',
+    scopes: 'read write',
     user: {
       attributes: {},
       id: 'user'
@@ -30,12 +30,13 @@ test('introspect returns information about an access token', async t => {
     .stub(OAuthRequest, 'authServerRequest')
     .returns(Promise.resolve(mockedSuccessResponse));
 
-  const config: OAuthConfig = new OAuthConfig({
+  const config: OAuthConfig = {
     clientId: 'client_id',
+    flow: 'IMPLICIT',
     provider: dummyProvider,
     redirectUri: 'http://my.app/callback',
-    scope: 'read,write'
-  });
+    scope: 'read write'
+  };
 
   const introspect: Introspect = new Introspect(config);
 

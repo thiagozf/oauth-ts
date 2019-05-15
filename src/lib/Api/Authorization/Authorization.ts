@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
-import { ErrorResponse, Result } from '~lib/Api';
+import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
+import { Result } from '~lib/Result';
 import { authServerRequest } from '../AuthServerRequest';
 import { AccessTokenRequest } from './AccessTokenRequest';
 import {
