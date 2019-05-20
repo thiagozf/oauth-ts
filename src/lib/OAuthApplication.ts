@@ -36,6 +36,12 @@ export class OAuthApplication {
     return this.flow.authorize();
   };
 
+  public readonly logout = async (): Promise<void> => {
+    this.sessionStore.clear();
+    // TODO: use logout endpoint
+    return Promise.resolve();
+  };
+
   public readonly silentLogin = async (): Promise<UserInfoResponse> => {
     const session: AuthSession = await this.flow.silentAuthorize();
     return this.establishUserSession(session);

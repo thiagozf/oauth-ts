@@ -8,9 +8,10 @@ export interface SessionMonitorOptions {
 }
 
 export interface SessionMonitorEventHandlers {
-  readonly onUserChanged?: () => void;
-  readonly onUserLoggedOut?: () => void;
   readonly onError?: () => void;
+  readonly onSessionChanged?: () => void;
+  readonly onSessionRestablished?: () => void;
+  readonly onSessionTerminated?: () => void;
 }
 
 type SessionMonitorStat = 'changed' | 'unchanged' | 'error';
@@ -18,34 +19,38 @@ type SessionMonitorStat = 'changed' | 'unchanged' | 'error';
 export class SessionMonitor {
   private readonly app: OAuthApplication;
   private readonly interval: number;
-  private readonly onUserChanged: () => void;
-  private readonly onUserLoggedOut: () => void;
-  private readonly onError: () => void;
+  private readonly handlers: SessionMonitorEventHandlers;
 
   private session: AuthSession;
   private frame: MessageBoundHiddenIFrame;
   private timer: NodeJS.Timeout;
   private isRunning: boolean;
+  private currentStat: SessionMonitorStat;
 
   constructor(
     { app, interval = 1000 }: SessionMonitorOptions,
     {
-      onUserChanged = () => void 0,
-      onUserLoggedOut = () => void 0,
-      onError = () => void 0
+      onError = () => void 0,
+      onSessionChanged = () => void 0,
+      onSessionRestablished = () => void 0,
+      onSessionTerminated = () => void 0
     }: SessionMonitorEventHandlers
   ) {
     this.app = app;
+    this.currentStat = 'unchanged';
     this.interval = interval;
-    this.onUserChanged = onUserChanged;
-    this.onUserLoggedOut = onUserLoggedOut;
-    this.onError = onError;
+    this.handlers = {
+      onError,
+      onSessionChanged,
+      onSessionRestablished,
+      onSessionTerminated
+    };
     this.isRunning = false;
   }
 
   public readonly start = (): void => {
     if (this.isRunning) {
-      return;
+      this.stop();
     }
 
     this.session = this.app.getSession();
@@ -54,9 +59,9 @@ export class SessionMonitor {
         url: this.app.config.provider.check_session_iframe,
         window: getWindow()
       },
-      { onMessage: this.handleNewStat }
+      { onMessage: this.handleMessage }
     );
-    this.timer = setInterval(this.doCheck, this.interval);
+    this.timer = setInterval(this.checkSession, this.interval);
     this.isRunning = true;
   };
 
@@ -73,30 +78,49 @@ export class SessionMonitor {
     }
   };
 
-  private readonly handleNewStat = (e: MessageEvent) => {
-    const stat: SessionMonitorStat = e.data;
-    return stat === 'error'
-      ? this.handleError()
-      : stat === 'changed'
-      ? this.handleChanged()
-      : void 0;
+  public readonly checkSession = (): void => {
+    const sessionToCheck: string = `${this.app.config.clientId} ${
+      this.session.sessionState.session_state
+    }`;
+    this.frame.postMessage(sessionToCheck);
   };
 
-  private readonly handleChanged = async () => {
-    this.stop();
+  private readonly handleMessage = (e: MessageEvent): void => {
+    const stat: SessionMonitorStat = e.data;
 
+    if (stat !== this.currentStat) {
+      this.currentStat = stat;
+
+      if (stat === 'error') {
+        this.handleError();
+      } else if (stat === 'changed') {
+        this.handleChanged();
+      } else if (stat === 'unchanged') {
+        this.handleRestablished();
+      }
+    }
+  };
+
+  private readonly handleRestablished = (): void => {
+    this.handlers.onSessionRestablished();
+    return this.start();
+  };
+
+  private readonly handleChanged = async (): Promise<void> => {
     const app: OAuthApplication = this.app;
 
     try {
       await app.silentLogin();
     } catch (e) {
-      this.onUserLoggedOut();
-      return;
+      this.handlers.onSessionTerminated();
+      return app.logout();
     }
 
     const newSession: AuthSession = app.getSession();
-    if (newSession.accessToken.user !== this.session.accessToken.user) {
-      this.onUserChanged();
+    if (
+      newSession.accessToken.principal !== this.session.accessToken.principal
+    ) {
+      this.handlers.onSessionChanged();
       return;
     }
 
@@ -104,14 +128,6 @@ export class SessionMonitor {
   };
 
   private readonly handleError = () => {
-    this.stop();
-    return this.onError();
-  };
-
-  private readonly doCheck = (): void => {
-    const sessionToCheck: string = `${this.app.config.clientId} ${
-      this.session.sessionState.session_state
-    }`;
-    this.frame.postMessage(sessionToCheck);
+    return this.handlers.onError();
   };
 }
