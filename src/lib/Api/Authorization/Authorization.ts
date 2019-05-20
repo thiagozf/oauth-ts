@@ -1,7 +1,5 @@
 import { stringify } from 'qs';
-import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
-import { Result } from '~lib/Result';
 import { authServerRequest } from '../AuthServerRequest';
 import { AccessTokenRequest } from './AccessTokenRequest';
 import {
@@ -78,7 +76,7 @@ export class Authorization {
   public readonly token = async (
     params: AccessTokenParams,
     silent: boolean = false
-  ): Promise<Result<AccessTokenResponse, ErrorResponse>> => {
+  ): Promise<AccessTokenResponse> => {
     const tokenRequest: AccessTokenRequest = {
       client_id: this.config.clientId,
       client_secret: this.config.clientSecret,

@@ -1,3 +1,1 @@
-export * from './AccessTokenResponseParser';
-export * from './AuthorizationCodeResponseParser';
-export * from './ServerResponseParser';
+export * from './AuthServerResponseParser';

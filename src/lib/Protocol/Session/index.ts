@@ -1,1 +1,1 @@
-export * from './SessionManager';
+export * from './SessionMonitor';

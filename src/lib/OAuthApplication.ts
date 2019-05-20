@@ -1,30 +1,33 @@
-import { AccessTokenResponse, Api, UserInfoResponse } from './Api';
+import { Api, UserInfo, UserInfoResponse } from './Api';
+import { AuthSession } from './Api/Session';
 import { navigate } from './Helpers';
 import { OAuthConfig } from './OAuthConfig';
 import { parsePersistence, Persistence } from './Persistence';
 import {
-  AccessTokenStore,
   AuthenticationFlow,
   LastPageStore,
   parseFlow,
+  SessionStore,
   UserStore
 } from './Protocol';
 
 export class OAuthApplication {
+  public readonly config: OAuthConfig;
   private readonly flow: AuthenticationFlow;
   private readonly api: Api;
   private readonly storage: Persistence;
 
   private readonly lastPageStore: LastPageStore;
-  private readonly accessTokenStore: AccessTokenStore;
+  private readonly sessionStore: SessionStore;
   private readonly userStore: UserStore;
 
   constructor(config: OAuthConfig) {
+    this.config = config;
     this.api = new Api(config);
     this.storage = parsePersistence(config);
     this.flow = parseFlow(config.flow, this.api, this.storage);
     this.lastPageStore = new LastPageStore(this.storage);
-    this.accessTokenStore = new AccessTokenStore(this.storage);
+    this.sessionStore = new SessionStore(this.storage);
     this.userStore = new UserStore(this.storage);
   }
 
@@ -33,35 +36,45 @@ export class OAuthApplication {
     return this.flow.authorize();
   };
 
-  public readonly isLoggedIn = (): boolean => {
-    return !!this.getUser();
+  public readonly silentLogin = async (): Promise<UserInfoResponse> => {
+    const session: AuthSession = await this.flow.silentAuthorize();
+    return this.establishUserSession(session);
   };
 
   public readonly getUser = (): UserInfoResponse => {
     return this.userStore.retrieveUser();
   };
 
-  public readonly getToken = (): AccessTokenResponse => {
-    return this.accessTokenStore.retrieveAccessToken();
+  public readonly getSession = (): AuthSession => {
+    return this.sessionStore.retrieveSession();
   };
 
-  public readonly handleCallback = (): Promise<void> => {
-    return this.flow
-      .handleAuthorizeResponse()
-      .then(this.accessTokenStore.storeAccessToken)
-      .then(this.loadUser)
-      .then(this.lastPageStore.retrieveLastPage)
-      .then(navigate);
+  public readonly handleCallback = async (): Promise<void> => {
+    const authSession: AuthSession = await this.flow.handleAuthorizeResponse();
+    await this.establishUserSession(authSession);
+    return navigate(this.lastPageStore.retrieveLastPage());
+  };
+
+  public readonly hasActiveSession = (): boolean => {
+    // TODO: remove session from storage on logout / expiration
+    return !!this.getSession();
+  };
+
+  private readonly establishUserSession = async (
+    session: AuthSession
+  ): Promise<UserInfoResponse> => {
+    this.sessionStore.storeSession(session);
+    return this.loadUser();
   };
 
   private readonly loadUser = async (): Promise<UserInfoResponse> => {
-    const { access_token } = this.getToken();
-    return this.api.userInfo
-      .get(access_token)
-      .then(result =>
-        result.success
-          ? this.userStore.storeUser(result.value)
-          : Promise.reject()
-      );
+    if (!this.hasActiveSession()) {
+      return Promise.reject();
+    }
+
+    // TODO: check if user changed before loading again
+    const { access_token } = this.getSession().accessToken;
+    const userInfo: UserInfo = await this.api.userInfo.get(access_token);
+    return this.userStore.storeUser(userInfo);
   };
 }

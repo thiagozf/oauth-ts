@@ -2,11 +2,10 @@ import * as t from 'io-ts';
 
 export const AuthorizeResponseValidator = t.intersection([
   t.type({
-    code: t.string,
-    state: t.string
+    code: t.string
   }),
   t.partial({
-    session_state: t.string
+    state: t.string
   })
 ]);
 

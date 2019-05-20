@@ -1,6 +1,4 @@
-import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
-import { Result } from '~lib/Result';
 import { authServerRequest } from '../AuthServerRequest';
 import { IntrospectRequest } from './IntrospectRequest';
 import {
@@ -29,7 +27,7 @@ export class Introspect {
    */
   public readonly get = async (
     accessToken: string
-  ): Promise<Result<IntrospectResponse, ErrorResponse>> => {
+  ): Promise<IntrospectResponse> => {
     const introspectRequest: IntrospectRequest = { access_token: accessToken };
 
     return authServerRequest({

@@ -1,12 +1,6 @@
+import * as t from 'io-ts';
 import { IParseOptions, parse } from 'qs';
-import {
-  AccessTokenResponse,
-  AccessTokenResponseValidator,
-  ErrorResponse
-} from '~lib/Api';
-import { getHashFragment } from '~lib/Helpers';
-import { Result } from '~lib/Result';
-import { resultOf } from './ServerResponseParser';
+import { validate } from './Validator';
 
 const ParseOptions: IParseOptions = {
   ignoreQueryPrefix: true,
@@ -36,9 +30,9 @@ const ParseOptions: IParseOptions = {
   }
 };
 
-export const tokenResponseFromFragment = (
-  fragment: string = getHashFragment()
-): Result<AccessTokenResponse, ErrorResponse> => {
-  const fragmentResponse: any = parse(fragment.slice(1), ParseOptions);
-  return resultOf(fragmentResponse, AccessTokenResponseValidator);
+export const deserializeResponse = <T, O, I>(
+  validator: t.Type<T, O, I>,
+  serializedResponse: string
+): Promise<T> => {
+  return validate(validator, parse(serializedResponse.slice(1), ParseOptions));
 };

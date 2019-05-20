@@ -6,8 +6,8 @@ export const getHashFragment = (): string => {
   return getWindow().location.hash;
 };
 
-export const getQueryParams = (): URLSearchParams => {
-  return new URLSearchParams(getWindow().location.search);
+export const getQueryParams = (): string => {
+  return getWindow().location.search;
 };
 
 export const getFullURL = (): string => {

@@ -5,6 +5,7 @@ import { Persistence } from './Persistence';
 const NAMESPACE: string = 'com.github.thiagozf.oauth';
 const DEFAULT_EXPIRATION_TIME: number = 1 / 48; // 30 minutes
 
+// TODO: use secure cookies
 export class CookiePersistence implements Persistence {
   private readonly config: OAuthConfig;
 

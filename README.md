@@ -27,7 +27,7 @@ export const oauthApp: OAuthApplication = new OAuthApplication({
 /* index.ts */
 import { oauthApp } from './MyOAuthApp';
 
-if (!oauthApp.isLoggedIn()) {
+if (!oauthApp.hasActiveSession()) {
   return oauthApp.login();
 }
 

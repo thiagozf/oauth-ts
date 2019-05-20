@@ -2,9 +2,7 @@ import {
   AccessTokenResponse,
   Api,
   AuthorizeResponse,
-  BAD_REQUEST_ERROR,
-  ErrorResponse,
-  INVALID_STATE_ERROR
+  AuthorizeResponseValidator
 } from '~lib/Api';
 
 import {
@@ -19,9 +17,15 @@ import {
   RedirectAuthenticationHandler
 } from '../Handlers';
 
-import { authorizeResponseFromQueryParams } from '~lib/Parsers';
+import { ErrorResponse } from '~lib/Api/ErrorResponse';
+import {
+  AuthSession,
+  SessionStateResponse,
+  SessionStateResponseValidator
+} from '~lib/Api/Session';
+import { getQueryParams } from '~lib/Helpers';
+import { deserializeResponse } from '~lib/Parsers/AuthServerResponseDeserializer';
 import { Persistence } from '~lib/Persistence';
-import { failure, Result } from '~lib/Result';
 import { AuthenticationFlow } from './AuthenticationFlow';
 
 export class CodePKCEFlow implements AuthenticationFlow {
@@ -39,50 +43,32 @@ export class CodePKCEFlow implements AuthenticationFlow {
     return RedirectAuthenticationHandler.navigate(this.getAuthorizeURL());
   };
 
-  public readonly handleAuthorizeResponse = async (): Promise<
-    AccessTokenResponse
-  > => {
-    const authorizeResult: Result<
-      AuthorizeResponse,
-      ErrorResponse
-    > = authorizeResponseFromQueryParams();
-
-    if (authorizeResult.failure) {
-      return Promise.reject(authorizeResult.failure);
-    }
-
-    const tokenResult: Result<
-      AccessTokenResponse,
-      ErrorResponse
-    > = await this.exchangeCode(authorizeResult.value);
-
-    return tokenResult.failure
-      ? Promise.reject(tokenResult.failure)
-      : Promise.resolve(tokenResult.value);
+  public readonly handleAuthorizeResponse = async (): Promise<AuthSession> => {
+    return this.handleBasicAuthorize();
   };
 
-  public readonly silentAuthorize = async (): Promise<
-    Result<AccessTokenResponse, ErrorResponse>
-  > => {
-    return IFrameAuthenticationHandler.navigate(
-      this.getAuthorizeURL(true)
-    ).then((result: Result<AuthorizeResponse, ErrorResponse>) => {
-      return result.success
-        ? this.exchangeCode(result.value, true)
-        : failure(BAD_REQUEST_ERROR);
-    });
+  public readonly silentAuthorize = async (): Promise<AuthSession> => {
+    const serializedResponse: string = await IFrameAuthenticationHandler.navigate(
+      this.getAuthorizeURL()
+    );
+    return this.handleBasicAuthorize(serializedResponse);
   };
 
   public readonly exchangeCode = async (
     authorizeResponse: AuthorizeResponse,
     silent: boolean = false
-  ): Promise<Result<AccessTokenResponse, ErrorResponse>> => {
+  ): Promise<AccessTokenResponse> => {
     const transaction: Transaction<
       CodeChallengePair
     > = this.transactionManager.getStoredTransaction(authorizeResponse.state);
 
     return !transaction
-      ? failure(INVALID_STATE_ERROR)
+      ? Promise.reject(
+          new ErrorResponse({
+            error: 'invalid_state',
+            error_description: 'application state not found'
+          })
+        )
       : this.api.authorization.token(
           {
             code: authorizeResponse.code,
@@ -94,6 +80,23 @@ export class CodePKCEFlow implements AuthenticationFlow {
           },
           silent
         );
+  };
+
+  private readonly handleBasicAuthorize = async (
+    serializedResponse: string = getQueryParams()
+  ): Promise<AuthSession> => {
+    const authorizeResponse: AuthorizeResponse = await deserializeResponse(
+      AuthorizeResponseValidator,
+      serializedResponse
+    );
+    const sessionState: SessionStateResponse = await deserializeResponse(
+      SessionStateResponseValidator,
+      serializedResponse
+    );
+    const accessToken: AccessTokenResponse = await this.exchangeCode(
+      authorizeResponse
+    );
+    return { accessToken, sessionState };
   };
 
   private readonly getAuthorizeURL = (silent: boolean = false): string => {

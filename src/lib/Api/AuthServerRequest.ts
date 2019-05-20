@@ -1,8 +1,7 @@
 import * as t from 'io-ts';
 import request from 'superagent';
-import { resultOf } from '~lib/Parsers';
-import { failure, Result } from '~lib/Result';
-import { BAD_REQUEST_ERROR, ErrorResponse } from './Errors';
+import { parseResponse } from '~lib/Parsers';
+import { ErrorResponse } from './ErrorResponse';
 
 type HttpRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -43,8 +42,8 @@ interface HttpRequestOptions<B> {
 }
 
 /**
- * Sends an asynchronous request to a server and returns the response as a [[Result]].
- *
+ * Sends an asynchronous request to a server and returns the response as an instance of `B`.
+ * @typeparam B type of response body.
  * @method authServerRequest
  * @returns the result of the request as a promise.
  */
@@ -56,7 +55,7 @@ export const authServerRequest = async <B>({
   type = 'application/x-www-form-urlencoded',
   url,
   validator
-}: HttpRequestOptions<B>): Promise<Result<B, ErrorResponse>> => {
+}: HttpRequestOptions<B>): Promise<B> => {
   try {
     const response: request.Response = await request(method, url)
       .retry(retries)
@@ -65,8 +64,14 @@ export const authServerRequest = async <B>({
       .send(body)
       .accept('json');
 
-    return resultOf(response.body, validator);
-  } catch (error) {
-    return failure(BAD_REQUEST_ERROR);
+    return parseResponse(validator, response.body);
+  } catch (e) {
+    // Received an unknown error when requesting the auth server...
+    return Promise.reject(
+      new ErrorResponse({
+        error: 'invalid_request',
+        error_description: 'bad request for authorization server'
+      })
+    );
   }
 };

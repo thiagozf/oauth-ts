@@ -1,10 +1,7 @@
-import { AccessTokenResponse, ErrorResponse } from '~lib/Api';
-import { Result } from '~lib/Result';
+import { AuthSession } from '~lib/Api/Session';
 
 export interface AuthenticationFlow {
   readonly authorize: () => Promise<void>;
-  readonly handleAuthorizeResponse: () => Promise<AccessTokenResponse>;
-  readonly silentAuthorize: () => Promise<
-    Result<AccessTokenResponse, ErrorResponse>
-  >;
+  readonly handleAuthorizeResponse: () => Promise<AuthSession>;
+  readonly silentAuthorize: () => Promise<AuthSession>;
 }

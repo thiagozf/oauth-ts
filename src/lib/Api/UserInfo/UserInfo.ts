@@ -1,6 +1,4 @@
-import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
-import { Result } from '~lib/Result';
 import { authServerRequest } from '../AuthServerRequest';
 import { UserInfoRequest } from './UserInfoRequest';
 import {
@@ -29,7 +27,7 @@ export class UserInfo {
    */
   public readonly get = async (
     accessToken: string
-  ): Promise<Result<UserInfoResponse, ErrorResponse>> => {
+  ): Promise<UserInfoResponse> => {
     const userInfoRequest: UserInfoRequest = { access_token: accessToken };
 
     return authServerRequest({

@@ -1,14 +1,22 @@
-import { AccessTokenResponse, Api, ErrorResponse } from '~lib/Api';
+import {
+  AccessTokenResponse,
+  AccessTokenResponseValidator,
+  Api
+} from '~lib/Api';
 
 import {
   IFrameAuthenticationHandler,
   RedirectAuthenticationHandler
 } from '../Handlers';
 
+import {
+  AuthSession,
+  SessionStateResponse,
+  SessionStateResponseValidator
+} from '~lib/Api/Session';
+import { getHashFragment } from '~lib/Helpers';
+import { deserializeResponse } from '~lib/Parsers/AuthServerResponseDeserializer';
 import { AuthenticationFlow } from './AuthenticationFlow';
-
-import { tokenResponseFromFragment } from '~lib/Parsers';
-import { Result } from '~lib/Result';
 
 export class ImplicitFlow implements AuthenticationFlow {
   private readonly api: Api;
@@ -21,22 +29,31 @@ export class ImplicitFlow implements AuthenticationFlow {
     return RedirectAuthenticationHandler.navigate(this.getAuthorizeURL());
   };
 
-  public readonly handleAuthorizeResponse = (): Promise<
-    AccessTokenResponse
-  > => {
-    const result: Result<
-      AccessTokenResponse,
-      ErrorResponse
-    > = tokenResponseFromFragment();
-    return result.success
-      ? Promise.resolve(result.value)
-      : Promise.reject(result.failure);
+  public readonly handleAuthorizeResponse = async (): Promise<AuthSession> => {
+    return this.handleBasicAuthorize();
   };
 
-  public readonly silentAuthorize = async (): Promise<
-    Result<AccessTokenResponse, ErrorResponse>
-  > => {
-    return IFrameAuthenticationHandler.navigate(this.getAuthorizeURL(true));
+  public readonly silentAuthorize = async (): Promise<AuthSession> => {
+    const serializedResponse: string = await IFrameAuthenticationHandler.navigate(
+      this.getAuthorizeURL(true)
+    );
+    return this.handleBasicAuthorize(serializedResponse);
+  };
+
+  private readonly handleBasicAuthorize = async (
+    serializedResponse: string = getHashFragment()
+  ): Promise<AuthSession> => {
+    const accessToken: AccessTokenResponse = await deserializeResponse(
+      AccessTokenResponseValidator,
+      serializedResponse
+    );
+
+    const sessionState: SessionStateResponse = await deserializeResponse(
+      SessionStateResponseValidator,
+      serializedResponse
+    );
+
+    return { accessToken, sessionState };
   };
 
   private readonly getAuthorizeURL = (silent: boolean = false): string => {

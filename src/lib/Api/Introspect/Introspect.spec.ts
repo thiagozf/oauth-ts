@@ -1,18 +1,13 @@
 import test from 'ava';
 import sinon from 'sinon';
-import { ErrorResponse } from '~lib/Api';
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { dummyProvider } from '~lib/Provider/OpenIDProvider.spec';
-import { Result, success } from '~lib/Result';
 import * as OAuthRequest from '../AuthServerRequest';
 import { Introspect } from './Introspect';
 import { IntrospectResponse } from './IntrospectResponse';
 
 test('introspect returns information about an access token', async t => {
-  const mockedSuccessResponse: Result<
-    IntrospectResponse,
-    ErrorResponse
-  > = success({
+  const mockedSuccessResponse: IntrospectResponse = {
     client: {
       attributes: {},
       client_id: 'client_id',
@@ -24,7 +19,7 @@ test('introspect returns information about an access token', async t => {
       attributes: {},
       id: 'user'
     }
-  });
+  };
 
   sinon
     .stub(OAuthRequest, 'authServerRequest')

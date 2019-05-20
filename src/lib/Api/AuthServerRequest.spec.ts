@@ -2,9 +2,8 @@ import test from 'ava';
 import * as types from 'io-ts';
 import request from 'superagent';
 import mockSuperagent from 'superagent-mock';
-import { Result } from '~lib/Result';
 import { authServerRequest } from './AuthServerRequest';
-import { BAD_REQUEST_ERROR, ErrorResponse } from './Errors';
+import { ErrorResponse } from './ErrorResponse';
 
 const mockRequestUrl: string = 'https://oauth.my.test/auth';
 const validResponseValidator = types.type({
@@ -14,7 +13,10 @@ const validResponseValidator = types.type({
 test.serial(
   'authServerRequest should return a bad request error if the request fails',
   async t => {
-    const expectedResponse: ErrorResponse = BAD_REQUEST_ERROR;
+    const expectedResponse: ErrorResponse = new ErrorResponse({
+      error: 'some_error'
+    });
+
     const superagentMock = mockSuperagent(request, [
       {
         fixtures: () => expectedResponse,
@@ -23,13 +25,15 @@ test.serial(
       }
     ]);
 
-    const failResult: Result<any, ErrorResponse> = await authServerRequest({
-      url: mockRequestUrl,
-      validator: validResponseValidator
-    });
-
-    t.false(failResult.success);
-    t.is(failResult.failure, BAD_REQUEST_ERROR);
+    // TODO: check error
+    await t.throwsAsync(
+      async () =>
+        authServerRequest({
+          url: mockRequestUrl,
+          validator: validResponseValidator
+        }),
+      { instanceOf: ErrorResponse }
+    );
 
     superagentMock.unset();
   }
@@ -47,13 +51,12 @@ test.serial(
       }
     ]);
 
-    const successResult: Result<any, ErrorResponse> = await authServerRequest({
+    const successResult: any = await authServerRequest({
       url: mockRequestUrl,
       validator: validResponseValidator
     });
 
-    t.true(successResult.success);
-    t.is(successResult.value, expectedResponse);
+    t.is(successResult, expectedResponse);
 
     superagentMock.unset();
   }
