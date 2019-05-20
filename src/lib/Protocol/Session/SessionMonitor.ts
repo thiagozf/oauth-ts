@@ -109,7 +109,6 @@ export class SessionMonitor {
   };
 
   private readonly doCheck = (): void => {
-    console.log(this.app);
     const sessionToCheck: string = `${this.app.config.clientId} ${
       this.session.sessionState.session_state
     }`;
