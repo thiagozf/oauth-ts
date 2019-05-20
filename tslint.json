@@ -9,6 +9,6 @@
     "typedef": [true, "call-signature"],
     "no-this": false,
     "no-class": false,
-    "no-console": false
+    "no-console": true
   }
 }
