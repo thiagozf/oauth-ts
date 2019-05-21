@@ -38,11 +38,10 @@ export class OAuthApplication {
 
   public readonly logout = async (): Promise<void> => {
     this.sessionStore.clear();
-    // TODO: use logout endpoint
     return Promise.resolve();
   };
 
-  public readonly silentLogin = async (): Promise<UserInfoResponse> => {
+  public readonly silentRefresh = async (): Promise<UserInfoResponse> => {
     const session: AuthSession = await this.flow.silentAuthorize();
     return this.establishUserSession(session);
   };

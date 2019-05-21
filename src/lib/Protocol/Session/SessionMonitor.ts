@@ -110,7 +110,7 @@ export class SessionMonitor {
     const app: OAuthApplication = this.app;
 
     try {
-      await app.silentLogin();
+      await app.silentRefresh();
     } catch (e) {
       this.handlers.onSessionTerminated();
       return app.logout();
