@@ -1,6 +1,6 @@
 const MESSAGE_EVENT: string = 'message';
 
-const createHiddenIFrame = (w: Window): HTMLIFrameElement => {
+const createHiddenIFrame = (w: Window, url: string): HTMLIFrameElement => {
   const element: HTMLIFrameElement = w.document.createElement(
     'iframe'
   ) as HTMLIFrameElement;
@@ -9,16 +9,8 @@ const createHiddenIFrame = (w: Window): HTMLIFrameElement => {
   element.style.position = 'absolute';
   element.style.width = '0';
   element.style.height = '0';
-  w.document.body.appendChild(element);
+  element.src = url;
   return element;
-};
-
-const messageListenerBoundWindow = (
-  w: Window,
-  listener: (event: MessageEvent) => void
-): Window => {
-  w.addEventListener(MESSAGE_EVENT, listener, false);
-  return w;
 };
 // tslint:enable
 
@@ -38,32 +30,43 @@ export class MessageBoundHiddenIFrame {
   private readonly element: HTMLIFrameElement;
   private readonly onTimeout?: () => void;
   private readonly onMessage: (e: MessageEvent) => void;
-  private readonly timeout: NodeJS.Timeout;
+  private readonly timeoutMillis?: number;
   private readonly targetOrigin: string;
+
+  private timeoutHandler: NodeJS.Timeout;
 
   constructor(
     options: MessageBoundHiddenIFrameOptions,
     handlers: MessageBoundHiddenIFrameHandlers
   ) {
     this.onMessage = handlers.onMessage;
-    this.window = messageListenerBoundWindow(
-      options.window,
-      this.handleMessage
-    );
-    this.element = createHiddenIFrame(this.window);
+    this.window = options.window;
+    this.timeoutMillis = options.timeout;
+    this.element = createHiddenIFrame(this.window, options.url);
     this.onTimeout = handlers.onTimeout;
-    this.timeout = options.timeout
-      ? setTimeout(this.handleTimeout, options.timeout)
-      : void 0;
     this.targetOrigin = options.url.substr(
       0,
       options.url.indexOf('/', options.url.indexOf('//') + 2)
     );
-    this.element.src = options.url;
   }
 
+  public readonly load = (): Promise<void> => {
+    return new Promise(resolve => {
+      this.element.onload = () => {
+        resolve();
+      };
+
+      this.timeoutHandler = this.timeoutMillis
+        ? setTimeout(this.handleTimeout, this.timeoutMillis)
+        : void 0;
+
+      this.window.document.body.appendChild(this.element);
+      this.window.addEventListener(MESSAGE_EVENT, this.handleMessage, false);
+    });
+  };
+
   public readonly destroy = (): void => {
-    clearTimeout(this.timeout);
+    clearTimeout(this.timeoutHandler);
     this.window.removeEventListener(MESSAGE_EVENT, this.handleMessage, false);
     this.element.parentNode.removeChild(this.element);
   };

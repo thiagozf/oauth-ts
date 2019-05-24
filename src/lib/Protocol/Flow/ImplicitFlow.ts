@@ -1,7 +1,10 @@
 import {
   AccessTokenResponse,
   AccessTokenResponseValidator,
-  Api
+  Api,
+  AuthSession,
+  SessionStateResponse,
+  SessionStateResponseValidator
 } from '~lib/Api';
 
 import {
@@ -9,11 +12,6 @@ import {
   RedirectAuthenticationHandler
 } from '../Handlers';
 
-import {
-  AuthSession,
-  SessionStateResponse,
-  SessionStateResponseValidator
-} from '~lib/Api/Session';
 import { getHashFragment } from '~lib/Helpers';
 import { deserializeResponse } from '~lib/Parsers/AuthServerResponseDeserializer';
 import { AuthenticationFlow } from './AuthenticationFlow';

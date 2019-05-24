@@ -1,4 +1,4 @@
-import { AuthSession } from '~lib/Api/Session';
+import { AuthSession } from '~lib/Api';
 
 export interface AuthenticationFlow {
   readonly authorize: () => Promise<void>;

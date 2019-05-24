@@ -1,40 +1,40 @@
-import { AuthSession } from '~lib/Api/Session';
+import { AuthSession } from '~lib/Api';
 import { getWindow, MessageBoundHiddenIFrame } from '~lib/Helpers';
 import { OAuthApplication } from '~lib/OAuthApplication';
 
-export interface SessionMonitorOptions {
+export interface OAuthMonitorOptions {
   readonly app: OAuthApplication;
   readonly interval: number;
 }
 
-export interface SessionMonitorEventHandlers {
+export interface OAuthMonitorEventHandlers {
   readonly onError?: () => void;
   readonly onSessionChanged?: () => void;
+  readonly onSessionEnded?: () => void;
   readonly onSessionRestablished?: () => void;
-  readonly onSessionTerminated?: () => void;
 }
 
-type SessionMonitorStat = 'changed' | 'unchanged' | 'error';
+type SessionStatus = 'changed' | 'unchanged' | 'error';
 
-export class SessionMonitor {
+export class OAuthMonitor {
   private readonly app: OAuthApplication;
   private readonly interval: number;
-  private readonly handlers: SessionMonitorEventHandlers;
+  private readonly handlers: OAuthMonitorEventHandlers;
 
   private session: AuthSession;
   private frame: MessageBoundHiddenIFrame;
   private timer: NodeJS.Timeout;
   private isRunning: boolean;
-  private currentStat: SessionMonitorStat;
+  private currentStat: SessionStatus;
 
   constructor(
-    { app, interval = 1000 }: SessionMonitorOptions,
+    { app, interval = 1000 }: OAuthMonitorOptions,
     {
       onError = () => void 0,
       onSessionChanged = () => void 0,
-      onSessionRestablished = () => void 0,
-      onSessionTerminated = () => void 0
-    }: SessionMonitorEventHandlers
+      onSessionEnded = () => void 0,
+      onSessionRestablished = () => void 0
+    }: OAuthMonitorEventHandlers
   ) {
     this.app = app;
     this.currentStat = 'unchanged';
@@ -42,17 +42,18 @@ export class SessionMonitor {
     this.handlers = {
       onError,
       onSessionChanged,
-      onSessionRestablished,
-      onSessionTerminated
+      onSessionEnded,
+      onSessionRestablished
     };
     this.isRunning = false;
   }
 
-  public readonly start = (): void => {
+  public readonly start = async (): Promise<void> => {
     if (this.isRunning) {
       this.stop();
     }
 
+    this.isRunning = true;
     this.session = this.app.getSession();
     this.frame = new MessageBoundHiddenIFrame(
       {
@@ -61,8 +62,10 @@ export class SessionMonitor {
       },
       { onMessage: this.handleMessage }
     );
-    this.timer = setInterval(this.checkSession, this.interval);
-    this.isRunning = true;
+
+    return this.frame.load().then(() => {
+      setInterval(this.checkSession, this.interval);
+    });
   };
 
   public readonly stop = (): void => {
@@ -86,7 +89,7 @@ export class SessionMonitor {
   };
 
   private readonly handleMessage = (e: MessageEvent): void => {
-    const stat: SessionMonitorStat = e.data;
+    const stat: SessionStatus = e.data;
 
     if (stat !== this.currentStat) {
       this.currentStat = stat;
@@ -96,12 +99,17 @@ export class SessionMonitor {
       } else if (stat === 'changed') {
         this.handleChanged();
       } else if (stat === 'unchanged') {
-        this.handleRestablished();
+        this.handleUnchanged();
       }
     }
   };
 
-  private readonly handleRestablished = (): void => {
+  private readonly handleError = (): Promise<void> => {
+    this.handlers.onError();
+    return Promise.resolve();
+  };
+
+  private readonly handleUnchanged = async (): Promise<void> => {
     this.handlers.onSessionRestablished();
     return this.start();
   };
@@ -112,14 +120,11 @@ export class SessionMonitor {
     try {
       await app.silentRefresh();
     } catch (e) {
-      this.handlers.onSessionTerminated();
-      return app.logout();
+      this.handlers.onSessionEnded();
+      return app.invalidateSession();
     }
 
-    const newSession: AuthSession = app.getSession();
-    if (
-      newSession.accessToken.principal !== this.session.accessToken.principal
-    ) {
+    if (!this.isSameUser()) {
       this.handlers.onSessionChanged();
       return;
     }
@@ -127,7 +132,10 @@ export class SessionMonitor {
     return this.start();
   };
 
-  private readonly handleError = () => {
-    return this.handlers.onError();
+  private readonly isSameUser = (): boolean => {
+    const newSession: AuthSession = this.app.getSession();
+    return (
+      newSession.accessToken.principal === this.session.accessToken.principal
+    );
   };
 }

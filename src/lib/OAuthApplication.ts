@@ -37,8 +37,13 @@ export class OAuthApplication {
   };
 
   public readonly logout = async (): Promise<void> => {
+    this.invalidateSession();
+    // TODO: post_logout_redirect_uri as query param
+    return navigate(this.config.provider.end_session_endpoint);
+  };
+
+  public readonly invalidateSession = (): void => {
     this.sessionStore.clear();
-    return Promise.resolve();
   };
 
   public readonly silentRefresh = async (): Promise<UserInfoResponse> => {
@@ -61,7 +66,7 @@ export class OAuthApplication {
   };
 
   public readonly hasActiveSession = (): boolean => {
-    // TODO: remove session from storage on logout / expiration
+    // TODO: remove session from storage on logout / expiration?
     return !!this.getSession();
   };
 

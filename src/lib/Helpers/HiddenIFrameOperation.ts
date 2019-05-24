@@ -18,6 +18,8 @@ export const executeHiddenIFrameOperation = async (
         }
       }
     );
+
+    hiddenIFrame.load();
   });
 };
 // tslint:enable

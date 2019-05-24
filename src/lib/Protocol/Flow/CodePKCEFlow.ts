@@ -2,7 +2,10 @@ import {
   AccessTokenResponse,
   Api,
   AuthorizeResponse,
-  AuthorizeResponseValidator
+  AuthorizeResponseValidator,
+  AuthSession,
+  SessionStateResponse,
+  SessionStateResponseValidator
 } from '~lib/Api';
 
 import {
@@ -18,11 +21,6 @@ import {
 } from '../Handlers';
 
 import { ErrorResponse } from '~lib/Api/ErrorResponse';
-import {
-  AuthSession,
-  SessionStateResponse,
-  SessionStateResponseValidator
-} from '~lib/Api/Session';
 import { getQueryParams } from '~lib/Helpers';
 import { deserializeResponse } from '~lib/Parsers/AuthServerResponseDeserializer';
 import { Persistence } from '~lib/Persistence';
