@@ -12,6 +12,7 @@ export interface OAuthMonitorEventHandlers {
   readonly onSessionChanged?: () => void;
   readonly onSessionEnded?: () => void;
   readonly onSessionRestablished?: () => void;
+  readonly onTokenRenewed?: () => void;
 }
 
 type SessionStatus = 'changed' | 'unchanged' | 'error';
@@ -33,7 +34,8 @@ export class OAuthMonitor {
       onError = () => void 0,
       onSessionChanged = () => void 0,
       onSessionEnded = () => void 0,
-      onSessionRestablished = () => void 0
+      onSessionRestablished = () => void 0,
+      onTokenRenewed = () => void 0
     }: OAuthMonitorEventHandlers
   ) {
     this.app = app;
@@ -43,7 +45,8 @@ export class OAuthMonitor {
       onError,
       onSessionChanged,
       onSessionEnded,
-      onSessionRestablished
+      onSessionRestablished,
+      onTokenRenewed
     };
     this.isRunning = false;
   }
@@ -129,7 +132,19 @@ export class OAuthMonitor {
       return;
     }
 
+    if (!this.isSameToken()) {
+      this.handlers.onTokenRenewed();
+    }
+
     return this.start();
+  };
+
+  private readonly isSameToken = (): boolean => {
+    const newSession: AuthSession = this.app.getSession();
+    return (
+      newSession.accessToken.access_token ===
+      this.session.accessToken.access_token
+    );
   };
 
   private readonly isSameUser = (): boolean => {
