@@ -1,6 +1,6 @@
 {
   "name": "@thiagozf/oauth-js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "OAuth 2.0 authentication library",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
