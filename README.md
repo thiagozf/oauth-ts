@@ -1,7 +1,7 @@
-# oauth.js
+# @thiagozf/oauth-js
 
-[![Codecov](https://img.shields.io/codecov/c/gh/thiagozf/oauth.js/master.svg)](https://codecov.io/gh/thiagozf/oauth.js)
-[![CircleCI](https://img.shields.io/circleci/project/github/thiagozf/oauth.js/master.svg)](https://circleci.com/gh/thiagozf/oauth.js)
+[![Codecov](https://img.shields.io/codecov/c/gh/thiagozf/oauth-js/master.svg)](https://codecov.io/gh/thiagozf/oauth-js)
+[![CircleCI](https://img.shields.io/circleci/project/github/thiagozf/oauth-js/master.svg)](https://circleci.com/gh/thiagozf/oauth-js)
 
 OAuth 2.0 authentication library
 
@@ -9,7 +9,7 @@ OAuth 2.0 authentication library
 
 ```typescript
 /* MyOAuthApp.ts */
-import { OpenIDProvider, OAuthApplication, resolveProvider } from 'oauth.js';
+import { OpenIDProvider, OAuthApplication, resolveProvider } from 'oauth-js';
 
 const provider: OpenIDProvider = await resolveProvider(
   'https://my.oidc.provider.com'

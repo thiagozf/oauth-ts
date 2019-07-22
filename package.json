@@ -1,5 +1,5 @@
 {
-  "name": "oauth.js",
+  "name": "@thiagozf/oauth-js",
   "version": "1.0.0",
   "description": "OAuth 2.0 authentication library",
   "main": "build/main/index.js",
