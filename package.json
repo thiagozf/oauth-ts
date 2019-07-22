@@ -7,7 +7,7 @@
   "module": "build/module/index.js",
   "repository": {
     "type" : "git",
-    "url": "ssh://git@github.com/thiagozf/oauth.js.git"
+    "url": "ssh://git@github.com/thiagozf/oauth-js.git"
   },
   "license": "MIT",
   "keywords": [],
@@ -103,5 +103,8 @@
     "exclude": [
       "**/*.spec.js"
     ]
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com/"
   }
 }

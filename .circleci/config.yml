@@ -1,10 +1,14 @@
 # https://circleci.com/docs/2.0/language-javascript/
 version: 2
+
+defaults:
+  working_directory: ~/oauth-js
+  docker:
+    - image: circleci/node:10
+
 jobs:
-  'node-10':
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/oauth.js
+  'build':
+    <<: *defaults
     steps:
       - checkout
       # Download and cache dependencies
@@ -22,25 +26,18 @@ jobs:
       - run: yarn test
       - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn run cov:check
-  'node-latest':
-    docker:
-      - image: circleci/node:latest
-    working_directory: ~/oauth.js
+
+  'deploy':
+    <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
-            - yarn-packages-
-      - run: yarn install --frozen-lockfile
-      - save_cache:
-          paths:
-            - ~/.cache/yarn
-            - node_modules
-          key: yarn-packages-{{ checksum "yarn.lock" }}
-      - run: yarn test
-      - run: npx nyc report --reporter=lcov && npx codecov
-      - run: yarn cov:check
+      - attach_workspace:
+          at: ~/oauth-js
+      - run:
+          name: Authenticate with registry
+          command: echo "//npm.pkg.github.com/:_authToken=$npm_TOKEN" > ~/oauth-js/.npmrc
+      - run:
+          name: Publish package
+          command: yarn publish --non-interactive
 
 workflows:
   version: 2
