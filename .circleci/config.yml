@@ -36,7 +36,7 @@ jobs:
           at: ~/oauth-js
       - run:
           name: Authenticate with registry
-          command: echo "//npm.pkg.github.com/:_authToken=$npm_TOKEN" > ~/oauth-js/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/oauth-js/.npmrc
       - run:
           name: Publish package
           command: yarn publish --non-interactive
