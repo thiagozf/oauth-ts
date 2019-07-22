@@ -26,13 +26,17 @@ jobs:
       - run: yarn test
       - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn run cov:check
-
+      - persist_to_workspace:
+          root: ~/oauth-js
+          paths: .
   deploy:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: ~/oauth-js
       - run:
           name: Authenticate with registry
-          command: echo "//npm.pkg.github.com/:_authToken=$npm_TOKEN" > ~/.npmrc
+          command: echo "//npm.pkg.github.com/:_authToken=$npm_TOKEN" > ~/oauth-js/.npmrc
       - run:
           name: Publish package
           command: yarn publish --non-interactive
