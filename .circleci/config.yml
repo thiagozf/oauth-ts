@@ -2,7 +2,7 @@
 version: 2
 
 defaults: &defaults
-  working_directory: ~/oauth-js
+  working_directory: ~/oauth-ts
   docker:
     - image: circleci/node:10
 
@@ -27,16 +27,16 @@ jobs:
       - run: npx nyc report --reporter=lcov && npx codecov
       - run: yarn run cov:check
       - persist_to_workspace:
-          root: ~/oauth-js
+          root: ~/oauth-ts
           paths: .
   deploy:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/oauth-js
+          at: ~/oauth-ts
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/oauth-js/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/oauth-ts/.npmrc
       - run:
           name: Publish package
           command: yarn publish --non-interactive
