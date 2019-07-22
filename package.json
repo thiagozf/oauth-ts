@@ -5,7 +5,10 @@
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/thiagozf/oauth.js",
+  "repository": {
+    "type" : "git",
+    "url": "ssh://git@github.com/thiagozf/oauth.js.git"
+  },
   "license": "MIT",
   "keywords": [],
   "scripts": {
@@ -31,6 +34,7 @@
     "version": "standard-version",
     "clean": "trash build test",
     "all": "run-s test cov:check doc:html",
+    "prepare": "run-s build",
     "prepare-release": "run-s all version doc:publish"
   },
   "scripts-info": {
@@ -43,7 +47,6 @@
     "doc": "Generate HTML API documentation and open it in a browser",
     "doc:json": "Generate API documentation in typedoc JSON format",
     "version": "Bump package.json version, update CHANGELOG.md, tag release",
-    "prepare": "run-s build",
     "prepare-release": "One-step: clean, build, test, publish docs, and prep a release"
   },
   "engines": {
