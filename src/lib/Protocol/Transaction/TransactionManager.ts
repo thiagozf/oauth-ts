@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import { generateRandomString } from '~lib/Helpers/Crypto';
 import { Persistence } from '~lib/Persistence';
 import { Transaction } from './Transaction';
 
@@ -15,8 +15,8 @@ export class TransactionManager<D> {
   public readonly startTransaction = (data: D): Transaction<D> => {
     const transaction: Transaction<D> = {
       data,
-      nonce: CryptoJS.lib.WordArray.random(KEY_LENGTH).toString(),
-      state: CryptoJS.lib.WordArray.random(KEY_LENGTH).toString()
+      nonce: generateRandomString(KEY_LENGTH),
+      state: generateRandomString(KEY_LENGTH)
     };
 
     return this.storage.store(

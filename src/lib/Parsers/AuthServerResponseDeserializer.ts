@@ -1,6 +1,4 @@
-import * as t from 'io-ts';
 import { IParseOptions, parse } from 'qs';
-import { validate } from './Validator';
 
 const ParseOptions: IParseOptions = {
   ignoreQueryPrefix: true,
@@ -30,9 +28,8 @@ const ParseOptions: IParseOptions = {
   }
 };
 
-export const deserializeResponse = <T, O, I>(
-  validator: t.Type<T, O, I>,
+export const deserializeResponse = <T>(
   serializedResponse: string
 ): Promise<T> => {
-  return validate(validator, parse(serializedResponse.slice(1), ParseOptions));
+  return parse(serializedResponse.slice(1), ParseOptions);
 };

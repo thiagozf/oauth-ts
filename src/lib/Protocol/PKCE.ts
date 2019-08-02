@@ -1,4 +1,4 @@
-import * as CryptoJS from 'crypto-js';
+import { generateRandomString } from '~lib/Helpers/Crypto';
 
 export interface CodeChallengePair {
   readonly challenge: string;
@@ -6,20 +6,19 @@ export interface CodeChallengePair {
 }
 
 const urlEncode = (str: string): string => {
-  return str
+  return btoa(str)
     .replace(/=/g, '')
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 };
 
 const generateChallenge = (verifier: string): string => {
-  return urlEncode(CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64));
+  // const hash: string = await sha256(verifier);
+  return urlEncode(verifier);
 };
 
 const generateVerifier = (): string => {
-  return urlEncode(
-    CryptoJS.enc.Base64.stringify(CryptoJS.lib.WordArray.random(32))
-  );
+  return generateRandomString(128);
 };
 
 export const generateCodeChallengePair = (): CodeChallengePair => {

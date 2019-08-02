@@ -1,10 +1,7 @@
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { authServerRequest } from '../AuthServerRequest';
 import { IntrospectRequest } from './IntrospectRequest';
-import {
-  IntrospectResponse,
-  IntrospectResponseValidator
-} from './IntrospectResponse';
+import { IntrospectResponse } from './IntrospectResponse';
 
 /**
  * The introspect endpoint of the OAuth specification, as described by RFC-7662.
@@ -32,8 +29,7 @@ export class Introspect {
 
     return authServerRequest({
       query: introspectRequest,
-      url: this.config.provider.introspect_endpoint,
-      validator: IntrospectResponseValidator
+      url: this.config.provider.introspect_endpoint
     });
   };
 }

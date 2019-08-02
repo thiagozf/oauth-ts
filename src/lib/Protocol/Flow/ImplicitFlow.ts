@@ -1,10 +1,8 @@
 import {
   AccessTokenResponse,
-  AccessTokenResponseValidator,
   Api,
   AuthSession,
-  SessionStateResponse,
-  SessionStateResponseValidator
+  SessionStateResponse
 } from '~lib/Api';
 
 import {
@@ -42,15 +40,11 @@ export class ImplicitFlow implements AuthenticationFlow {
     serializedResponse: string = getHashFragment()
   ): Promise<AuthSession> => {
     const accessToken: AccessTokenResponse = await deserializeResponse(
-      AccessTokenResponseValidator,
       serializedResponse
     );
-
     const sessionState: SessionStateResponse = await deserializeResponse(
-      SessionStateResponseValidator,
       serializedResponse
     );
-
     return { accessToken, sessionState };
   };
 

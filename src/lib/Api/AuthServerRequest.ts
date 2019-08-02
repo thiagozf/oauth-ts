@@ -1,11 +1,9 @@
-import * as t from 'io-ts';
 import request from 'superagent';
 import { parseResponse } from '~lib/Parsers';
-import { ErrorResponse } from './ErrorResponse';
 
 type HttpRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
-interface HttpRequestOptions<B> {
+interface HttpRequestOptions {
   /**
    * the request's body.
    */
@@ -34,11 +32,6 @@ interface HttpRequestOptions<B> {
    * the full URL to call.
    */
   readonly url: string;
-
-  /**
-   * the response body validator.
-   */
-  readonly validator: t.Type<B>;
 }
 
 /**
@@ -53,9 +46,8 @@ export const authServerRequest = async <B>({
   query,
   retries = 3,
   type = 'application/x-www-form-urlencoded',
-  url,
-  validator
-}: HttpRequestOptions<B>): Promise<B> => {
+  url
+}: HttpRequestOptions): Promise<B> => {
   try {
     const response: request.Response = await request(method, url)
       .retry(retries)
@@ -64,14 +56,12 @@ export const authServerRequest = async <B>({
       .send(body)
       .accept('json');
 
-    return parseResponse(validator, response.body);
+    return parseResponse(response.body);
   } catch (e) {
     // Received an unknown error when requesting the auth server...
-    return Promise.reject(
-      new ErrorResponse({
-        error: 'invalid_request',
-        error_description: 'bad request for authorization server'
-      })
-    );
+    return Promise.reject({
+      error: 'invalid_request',
+      error_description: 'bad request for authorization server'
+    });
   }
 };

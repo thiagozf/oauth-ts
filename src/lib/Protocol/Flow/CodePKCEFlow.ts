@@ -2,10 +2,8 @@ import {
   AccessTokenResponse,
   Api,
   AuthorizeResponse,
-  AuthorizeResponseValidator,
   AuthSession,
-  SessionStateResponse,
-  SessionStateResponseValidator
+  SessionStateResponse
 } from '~lib/Api';
 
 import {
@@ -20,7 +18,6 @@ import {
   RedirectAuthenticationHandler
 } from '../Handlers';
 
-import { ErrorResponse } from '~lib/Api/ErrorResponse';
 import { getQueryParams } from '~lib/Helpers';
 import { deserializeResponse } from '~lib/Parsers/AuthServerResponseDeserializer';
 import { Persistence } from '~lib/Persistence';
@@ -61,12 +58,10 @@ export class CodePKCEFlow implements AuthenticationFlow {
     > = this.transactionManager.getStoredTransaction(authorizeResponse.state);
 
     return !transaction
-      ? Promise.reject(
-          new ErrorResponse({
-            error: 'invalid_state',
-            error_description: 'application state not found'
-          })
-        )
+      ? Promise.reject({
+          error: 'invalid_state',
+          error_description: 'application state not found'
+        })
       : this.api.authorization.token(
           {
             code: authorizeResponse.code,
@@ -84,11 +79,9 @@ export class CodePKCEFlow implements AuthenticationFlow {
     serializedResponse: string = getQueryParams()
   ): Promise<AuthSession> => {
     const authorizeResponse: AuthorizeResponse = await deserializeResponse(
-      AuthorizeResponseValidator,
       serializedResponse
     );
     const sessionState: SessionStateResponse = await deserializeResponse(
-      SessionStateResponseValidator,
       serializedResponse
     );
     const accessToken: AccessTokenResponse = await this.exchangeCode(

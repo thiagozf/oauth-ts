@@ -1,18 +1,10 @@
-import * as t from 'io-ts';
-
-export const AccessTokenRequestValidator = t.intersection([
-  t.type({
-    client_id: t.string,
-    grant_type: t.string,
-    scope: t.string
-  }),
-  t.partial({
-    client_secret: t.string,
-    code: t.string,
-    code_verifier: t.string,
-    redirect_uri: t.string,
-    refresh_token: t.string
-  })
-]);
-
-export type AccessTokenRequest = t.TypeOf<typeof AccessTokenRequestValidator>;
+export interface AccessTokenRequest {
+  client_id: string;
+  grant_type: string;
+  scope: string;
+  client_secret?: string;
+  code?: string;
+  code_verifier?: string;
+  redirect_uri?: string;
+  refresh_token?: string;
+}

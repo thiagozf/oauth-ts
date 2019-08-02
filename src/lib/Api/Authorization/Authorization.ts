@@ -2,10 +2,7 @@ import { stringify } from 'qs';
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { authServerRequest } from '../AuthServerRequest';
 import { AccessTokenRequest } from './AccessTokenRequest';
-import {
-  AccessTokenResponse,
-  AccessTokenResponseValidator
-} from './AccessTokenResponse';
+import { AccessTokenResponse } from './AccessTokenResponse';
 import { AuthorizeRequest } from './AuthorizeRequest';
 
 export interface AuthorizeParams {
@@ -90,8 +87,7 @@ export class Authorization {
     return authServerRequest({
       body: tokenRequest,
       method: 'POST',
-      url: `${this.config.provider.token_endpoint}`,
-      validator: AccessTokenResponseValidator
+      url: `${this.config.provider.token_endpoint}`
     });
   };
 }

@@ -1,10 +1,7 @@
 import { OAuthConfig } from '~lib/OAuthConfig';
 import { authServerRequest } from '../AuthServerRequest';
 import { UserInfoRequest } from './UserInfoRequest';
-import {
-  UserInfoResponse,
-  UserInfoResponseValidator
-} from './UserInfoResponse';
+import { UserInfoResponse } from './UserInfoResponse';
 
 /**
  * The `userinfo` endpoint of the OpenID specification.
@@ -32,8 +29,7 @@ export class UserInfo {
 
     return authServerRequest({
       query: userInfoRequest,
-      url: this.config.provider.userinfo_endpoint,
-      validator: UserInfoResponseValidator
+      url: this.config.provider.userinfo_endpoint
     });
   };
 }
