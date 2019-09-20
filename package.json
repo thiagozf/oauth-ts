@@ -6,8 +6,8 @@
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": {
-    "type" : "git",
-    "url": "ssh://git@github.com/thiagozf/oauth-ts.git"
+    "type": "git",
+    "url": "https://github.com/thiagozf/oauth-ts.git"
   },
   "license": "MIT",
   "keywords": [],
